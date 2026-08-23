@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Environment variables — NEVER commit these
+.env
+.env.local
+.env.production
+
+# Build outputs
+dist/
+backend/dist/
+
+# Prisma generated client
+src/generated/
+backend/src/generated/
+
+# OS/Editor noise
+.DS_Store
+*.suo
+.vscode/
+.idea/
+
+# Test files
+test.jpeg

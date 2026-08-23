@@ -1,0 +1,101 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  RESIDENT
+  ADMIN
+}
+
+enum ComplaintStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum ComplaintCategory {
+  PLUMBING
+  ELECTRICAL
+  CLEANING
+  SECURITY
+  OTHER
+}
+
+model User {
+  id             String       @id @default(uuid())
+  name           String
+  email          String       @unique
+  password       String
+  role           Role         @default(RESIDENT)
+  apartmentBlock String?
+  apartmentUnit  String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  complaints     Complaint[]
+  noticesRead    NoticeRead[]
+}
+
+model Complaint {
+  id            String            @id @default(uuid())
+  category      ComplaintCategory
+  description   String
+  photoUrl      String?
+  status        ComplaintStatus   @default(OPEN)
+  priority      Priority          @default(LOW)
+  rating        Int?
+  ratingComment String?
+  residentId    String
+  resident      User              @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  statusHistory StatusHistory[]
+}
+
+model StatusHistory {
+  id          String          @id @default(uuid())
+  complaintId String
+  complaint   Complaint       @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  status      ComplaintStatus
+  changedBy   String
+  note        String?
+  timestamp   DateTime        @default(now())
+}
+
+model Notice {
+  id          String       @id @default(uuid())
+  title       String
+  body        String
+  isImportant Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  reads       NoticeRead[]
+}
+
+model NoticeRead {
+  id       String   @id @default(uuid())
+  noticeId String
+  notice   Notice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  readAt   DateTime @default(now())
+
+  @@unique([noticeId, userId])
+}
+
+model Settings {
+  id                  String   @id @default("GLOBAL")
+  overdueThresholdDays Int      @default(3)
+  maxComplaintsPerDay  Int      @default(5)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
