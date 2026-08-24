@@ -24,8 +24,12 @@ app.use('/api/notices', noticeRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
-// Base route for health check
-app.get('/health', (req, res) => {
+// Base routes
+app.get('/', (_req, res) => {
+  res.json({ message: '🚀 SocietyDesk API is running live!', health: '/health' });
+});
+
+app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date() });
 });
 
